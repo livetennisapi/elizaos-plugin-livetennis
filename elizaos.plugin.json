@@ -1,0 +1,25 @@
+{
+  "id": "livetennis",
+  "name": "Live Tennis",
+  "description": "Live tennis scores, upcoming fixtures, and player search across ATP, WTA, Challenger, ITF and juniors via the Live Tennis API.",
+  "version": "0.1.0",
+  "kind": "plugin",
+  "requiredSecrets": ["LIVETENNIS_API_KEY"],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "LIVETENNIS_API_KEY": {
+        "type": "string",
+        "description": "Live Tennis API key. A FREE key is self-serve at https://livetennisapi.com/subscribe/free (30 requests/minute, 100/day, no card)."
+      }
+    },
+    "required": ["LIVETENNIS_API_KEY"]
+  },
+  "uiHints": {
+    "LIVETENNIS_API_KEY": {
+      "label": "Live Tennis API key",
+      "type": "password",
+      "sensitive": true
+    }
+  }
+}
