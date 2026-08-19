@@ -15,6 +15,20 @@ export const DEFAULT_LIVETENNIS_API_URL =
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/** Combine caller cancellation with the per-request timeout (Node 18-safe). */
+function combineSignals(external: AbortSignal | undefined, timeout: AbortSignal): AbortSignal {
+  if (!external) return timeout;
+  if (typeof (AbortSignal as { any?: unknown }).any === "function") {
+    return (AbortSignal as unknown as { any(s: AbortSignal[]): AbortSignal }).any([external, timeout]);
+  }
+  const controller = new AbortController();
+  for (const s of [external, timeout]) {
+    if (s.aborted) { controller.abort((s as { reason?: unknown }).reason); return controller.signal; }
+    s.addEventListener("abort", () => controller.abort((s as { reason?: unknown }).reason), { once: true });
+  }
+  return controller.signal;
+}
+
 /** Tour filter vocabulary shared by `/matches` and `/fixtures`. */
 export type LiveTennisTour = "atp" | "wta" | "challenger" | "itf" | "juniors";
 
@@ -145,6 +159,7 @@ export interface ListMatchesOptions {
   status?: "live" | "upcoming";
   tour?: LiveTennisTour;
   limit?: number;
+  signal?: AbortSignal;
 }
 
 export interface ListFixturesOptions {
@@ -179,6 +194,7 @@ export class LiveTennisClient {
   private async get<T>(
     path: string,
     query: Record<string, string | number | undefined> = {},
+    signal?: AbortSignal,
   ): Promise<T> {
     const url = new URL(`${this.baseUrl}${path}`);
     for (const [key, value] of Object.entries(query)) {
@@ -188,7 +204,7 @@ export class LiveTennisClient {
     try {
       response = await this.fetchImpl(url.toString(), {
         headers: { "X-API-Key": this.apiKey, accept: "application/json" },
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        signal: combineSignals(signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)),
       });
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
@@ -229,7 +245,7 @@ export class LiveTennisClient {
       status: options.status ?? "live",
       tour: options.tour,
       limit: options.limit,
-    });
+    }, options.signal);
   }
 
   /** `GET /fixtures` — upcoming scheduled fixtures, earliest first. FREE. */

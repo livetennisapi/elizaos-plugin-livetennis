@@ -16,8 +16,8 @@ export function fakeRuntime(
   } as unknown as IAgentRuntime;
 }
 
-export function fakeMessage(): Memory {
-  return { content: { text: "hi", source: "test" } } as unknown as Memory;
+export function fakeMessage(text = "what's the live tennis score right now?"): Memory {
+  return { content: { text, source: "test" } } as unknown as Memory;
 }
 
 export const emptyState = {} as State;

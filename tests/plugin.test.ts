@@ -57,4 +57,35 @@ describe("LIVE_TENNIS_MATCH_CONTEXT provider", () => {
     const result = await provider.get(fakeRuntime(), fakeMessage(), emptyState);
     expect(result.text).toBe("");
   });
+  it("makes ZERO API requests on a non-tennis turn", async () => {
+    const listMatches = vi.fn();
+    const provider = createMatchContextProvider(() => ({ listMatches }));
+    const result = await provider.get(
+      fakeRuntime(),
+      fakeMessage("what's the weather in Paris tomorrow?"),
+      emptyState,
+    );
+    expect(result.text).toBe("");
+    expect(listMatches).not.toHaveBeenCalled();
+  });
+
+  it("short-circuits (no request) when the execution signal is already aborted", async () => {
+    const listMatches = vi.fn();
+    const provider = createMatchContextProvider(() => ({ listMatches }));
+    const result = await (provider.get as unknown as (
+      r: unknown, m: unknown, s: unknown, ctx: { signal: AbortSignal },
+    ) => Promise<{ text?: string }>)(
+      fakeRuntime(), fakeMessage(), emptyState, { signal: AbortSignal.abort() },
+    );
+    expect(result.text).toBe("");
+    expect(listMatches).not.toHaveBeenCalled();
+  });
+
+  it("reports a typed diagnostic instead of silently swallowing a failure", async () => {
+    const listMatches = vi.fn().mockRejectedValue(new Error("boom"));
+    const provider = createMatchContextProvider(() => ({ listMatches }));
+    const result = await provider.get(fakeRuntime(), fakeMessage(), emptyState);
+    expect(result.text).toBe("");
+    expect(result.values?.liveTennisError).toBe("network_error");
+  });
 });

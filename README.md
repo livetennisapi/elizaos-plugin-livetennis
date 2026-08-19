@@ -34,16 +34,13 @@ and this plugin passes that honesty through as per-action errors:
 
 ## Install
 
-npm publish pending; install via `github:` for now:
-
 ```bash
-npm install github:livetennisapi/elizaos-plugin-livetennis
+npm install elizaos-plugin-livetennis
 # or
-bun add github:livetennisapi/elizaos-plugin-livetennis
+bun add elizaos-plugin-livetennis
 ```
 
-The package builds itself on install (a `prepare` script runs `tsup`), so the
-`dist/` output is present after a git install.
+Published on npm as [`elizaos-plugin-livetennis`](https://www.npmjs.com/package/elizaos-plugin-livetennis).
 
 ## Configure
 
