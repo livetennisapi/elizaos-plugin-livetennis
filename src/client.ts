@@ -16,6 +16,16 @@ export const DEFAULT_LIVETENNIS_API_URL =
 const REQUEST_TIMEOUT_MS = 10_000;
 
 /** Combine caller cancellation with the per-request timeout (Node 18-safe). */
+/** True for a DOMException/AbortError-shaped cancellation from fetch. */
+export function isAbortError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === "AbortError" ||
+      error.name === "TimeoutError" ||
+      (error as { code?: string }).code === "ABORT_ERR")
+  );
+}
+
 function combineSignals(external: AbortSignal | undefined, timeout: AbortSignal): AbortSignal {
   if (!external) return timeout;
   if (typeof (AbortSignal as { any?: unknown }).any === "function") {
@@ -207,6 +217,15 @@ export class LiveTennisClient {
         signal: combineSignals(signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)),
       });
     } catch (error) {
+      // Preserve cancellation identity: an aborted fetch (caller signal or the
+      // request timeout) must propagate as an abort, NOT be flattened into a
+      // generic API error. Otherwise the runtime cannot distinguish a cancelled
+      // turn from a failed request. Re-throw the original abort/reason.
+      if (isAbortError(error) || signal?.aborted) {
+        throw (signal?.aborted && signal.reason !== undefined)
+          ? signal.reason
+          : error;
+      }
       const detail = error instanceof Error ? error.message : String(error);
       throw new LiveTennisApiError(
         `Live Tennis API request failed: ${detail}`,

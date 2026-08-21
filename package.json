@@ -1,6 +1,6 @@
 {
   "name": "elizaos-plugin-livetennis",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Live tennis scores, upcoming fixtures, and player search for elizaOS agents via the Live Tennis API \u2014 ATP, WTA, Challenger, ITF and juniors. FREE-tier endpoints only, with honest per-action tier errors.",
   "type": "module",
   "license": "MIT",

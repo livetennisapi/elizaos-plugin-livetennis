@@ -2,7 +2,7 @@
   "id": "livetennis",
   "name": "Live Tennis",
   "description": "Live tennis scores, upcoming fixtures, and player search across ATP, WTA, Challenger, ITF and juniors via the Live Tennis API.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "kind": "plugin",
   "requiredSecrets": [
     "LIVETENNIS_API_KEY"

@@ -88,4 +88,35 @@ describe("LIVE_TENNIS_MATCH_CONTEXT provider", () => {
     expect(result.text).toBe("");
     expect(result.values?.liveTennisError).toBe("network_error");
   });
+
+  it("PROPAGATES a mid-flight AbortError as a rejection (not a resolved empty result)", async () => {
+    // The request has started, then the fetch aborts mid-flight. The provider
+    // must reject so the runtime classifies the turn as cancelled, rather than
+    // suppressing it into a successful empty ProviderResult.
+    const abortErr = new DOMException("The operation was aborted.", "AbortError");
+    const listMatches = vi.fn().mockRejectedValue(abortErr);
+    const provider = createMatchContextProvider(() => ({ listMatches }));
+    await expect(
+      provider.get(fakeRuntime(), fakeMessage(), emptyState),
+    ).rejects.toBe(abortErr);
+    expect(listMatches).toHaveBeenCalled();
+  });
+
+  it("throws the signal reason when the execution signal aborts mid-flight", async () => {
+    // listMatches has been entered (started), then the caller's signal aborts.
+    const controller = new AbortController();
+    const reason = new Error("turn cancelled");
+    const listMatches = vi.fn().mockImplementation(async () => {
+      controller.abort(reason);
+      throw new DOMException("aborted", "AbortError");
+    });
+    const provider = createMatchContextProvider(() => ({ listMatches }));
+    await expect(
+      (provider.get as unknown as (
+        r: unknown, m: unknown, s: unknown, ctx: { signal: AbortSignal },
+      ) => Promise<unknown>)(
+        fakeRuntime(), fakeMessage(), emptyState, { signal: controller.signal },
+      ),
+    ).rejects.toBe(reason);
+  });
 });
