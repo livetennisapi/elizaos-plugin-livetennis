@@ -4,7 +4,11 @@
   "description": "Live tennis scores, upcoming fixtures, and player search for elizaOS agents via the Live Tennis API \u2014 ATP, WTA, Challenger, ITF and juniors. FREE-tier endpoints only, with honest per-action tier errors.",
   "type": "module",
   "license": "MIT",
-  "author": "Live Tennis API <hello@livetennisapi.com>",
+  "author": {
+    "name": "Synapse Research Ltd",
+    "email": "hello@livetennisapi.com",
+    "url": "https://synapsereality.io"
+  },
   "homepage": "https://livetennisapi.com",
   "repository": {
     "type": "git",
