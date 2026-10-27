@@ -76,7 +76,7 @@
     "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public"
@@ -89,5 +89,8 @@
         "description": "Live Tennis API key. A FREE key is self-serve at https://livetennisapi.com/subscribe/free (30 requests/minute, 100/day, no card)."
       }
     }
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
   }
 }
