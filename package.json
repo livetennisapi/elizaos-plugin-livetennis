@@ -75,7 +75,7 @@
     "@elizaos/core": "2.0.3-beta.7",
     "@types/node": "^26.6.6",
     "tsup": "^9.0.0",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
   "publishConfig": {
